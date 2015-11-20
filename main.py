@@ -26,6 +26,7 @@ classes of series.")
     flags = {'compare': "teste.txt",
              'base': "treino.txt",
              'label': "rotulos.txt",
+             'dimension': "1",
              'sc_band': "100"}
 
     for flag in cmd[1:]:    # Interpret all flags
@@ -66,6 +67,6 @@ mass_dtw = MassDtw(file_base,
                    sc_band=flags['sc_band'])
 
 ratio = mass_dtw.run()
-print('{}%'.format(ratio))
-print(mass_dtw.get_time_last_run)
+# print('{}%'.format(ratio))
+# print(mass_dtw.get_time_last_run)
 os.system('sudo beep')

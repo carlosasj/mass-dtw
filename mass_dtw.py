@@ -1,44 +1,51 @@
 # -*- coding: utf-8 -*-
 import time
 from dtw import Dtw
+from math import sqrt
 
 
-def gen_dict_label(file_label):
-    dict_label = {}
-    for line in file_label.split('\n'):
-        try:
-            index, label = line.split('\t', 1)
-            dict_label[index] = label
-        except:
-            pass
-    return dict_label
+def distance_1d(a, b):
+    return abs(float(a[0]) - float(b[0]))
 
 
-def gen_list_serie(file_serie):
+def distance_nd(a, b):
+    temp = 0
+    for i in range(1, len(a)):
+        temp += (a[i] - b[i])**2
+    return sqrt(temp)
+
+
+def gen_list_serie(file_serie, dimension=1):
     list_serie = []
     for line in file_serie.split('\n'):
         try:
             label, serie = line.split(' ', 1)
-            list_serie.append([label, serie.split(' ')])
+            list_serie.append([label, list(zip(*[iter(serie.split(' '))] * dimension))])
         except:
             pass
     return list_serie
 
 
 class MassDtw(object):
-    def __init__(self, file_base, file_compare, sc_band=100, file_label=None):
-        # Files
-        self._file_base = file_base
-        self._file_compare = file_compare
-        self._file_label = file_label
+    def __init__(self,
+                 file_base,
+                 file_compare,
+                 sc_band=100,
+                 file_label=None,
+                 dimension=1):
 
         # Flag Sakoe‐Chiba band
-        self._sc_band = int(sc_band)
+        self._sc_band = int(sc_band) / 100
+
+        if dimension is 1:
+            self._func_distance = distance_1d
+        else:
+            self._func_distance = distance_nd
 
         # Dictionaries and lists, generated
-        self._dict_label = gen_dict_label(file_label)
-        self._list_base = gen_list_serie(file_base)
-        self._list_compare = gen_list_serie(file_compare)
+        self._dict_label = dict(gen_list_serie(file_label))
+        self._list_base = gen_list_serie(file_base, dimension)
+        self._list_compare = gen_list_serie(file_compare, dimension)
 
         # Minimum dtw value until now. It's two temporary variables for
         # internal use only. Please, avoid change this outside `.run()`
@@ -94,9 +101,11 @@ class MassDtw(object):
 
             # Iterate all labels
             for base_label, base_serie in self._list_base:
-                actual_dtw = Dtw(base_serie, compare_serie, self._sc_band)
-                result = actual_dtw.run()
-                self.check_min(base_label, result)
+                actual_dtw = Dtw(base_serie,
+                                 compare_serie,
+                                 self._func_distance,
+                                 self._sc_band).run()
+                self.check_min(base_label, actual_dtw)
 
             self.check_hit_miss(compare_label, self._min_label)
 

@@ -3,15 +3,23 @@
 
 class Dtw(object):
 
-    def __init__(self, base_serie, compare_serie, sc_band):
+    def __init__(self,
+                 base_serie,
+                 compare_serie,
+                 func_distance,
+                 sc_band=1):
+
         self._matrix_distance = {}
         self._matrix_dtw = {(-1, -1): 0.0}
         self._base_serie = base_serie
         self._compare_serie = compare_serie
-        self._sc_band = (sc_band * len(compare_serie)) / 100
+        self._func_distance = func_distance
+
         if sc_band is 100:
+            self._sc_band = len(compare_serie)
             self.check_band = self.func_always_true
         else:
+            self._sc_band = sc_band * len(compare_serie)
             self.check_band = self.func_check_band
 
     def func_check_band(self, x, y):
@@ -24,9 +32,9 @@ class Dtw(object):
     def distance(self, p, q):
         dist = self._matrix_distance.get((p, q))
         if not dist:
-            dist = abs(
-                float(self._base_serie[p]) -
-                float(self._compare_serie[q]))
+            dist = self._func_distance(
+                self._base_serie[p],
+                self._compare_serie[q])
             self._matrix_distance[(p, q)] = dist
         return dist
 
