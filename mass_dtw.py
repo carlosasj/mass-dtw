@@ -85,7 +85,7 @@ class MassDtw(object):
         temp = len(self._list_compare)
 
         # For each series
-        for compare_label, compare_serie in self._list_compare[:10]:
+        for compare_label, compare_serie in self._list_compare:
             print('{}'.format(temp))
             temp -= 1
 
@@ -94,7 +94,7 @@ class MassDtw(object):
 
             # Iterate all labels
             for base_label, base_serie in self._list_base:
-                actual_dtw = Dtw(base_serie, compare_serie)
+                actual_dtw = Dtw(base_serie, compare_serie, self._sc_band)
                 result = actual_dtw.run()
                 self.check_min(base_label, result)
 
