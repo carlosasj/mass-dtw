@@ -1,4 +1,5 @@
 import sys
+
 from mass_dtw import MassDtw
 
 
@@ -66,5 +67,5 @@ mass_dtw = MassDtw(file_base,
 
 ratio = mass_dtw.run()
 print('{}%'.format(ratio))
-print(mass_dtw._time_last_run)
+print(mass_dtw.get_time_last_run)
 os.system('sudo beep')

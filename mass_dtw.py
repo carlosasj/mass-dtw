@@ -42,8 +42,7 @@ class MassDtw(object):
 
         # Minimum dtw value until now. It's two temporary variables for
         # internal use only. Please, avoid change this outside `.run()`
-        self._min_dtw = float('inf')
-        self._min_label = float('inf')
+        self._min_dtw = self._min_label = float('inf')
 
         # ===== Benchmark only. =====
         # Count number of hits and misses on this implementation.
@@ -64,21 +63,21 @@ class MassDtw(object):
             hit_ratio = -1
         return hit_ratio
 
+    @property
+    def get_time_last_run(self):
+        return self._time_last_run
+
     def check_hit_miss(self, real_label, calculated_label):
         print('Compare({}\t{})'.format(real_label, calculated_label))
         if real_label == calculated_label:
             self._count_hit += 1
-            return True
         else:
             self._count_miss += 1
-            return False
 
     def check_min(self, actual_label, actual_dtw):
         if actual_dtw < self._min_dtw:
             self._min_dtw = actual_dtw
             self._min_label = actual_label
-            return True
-        return False
 
     def run(self):
         init_time = time.clock()
@@ -86,13 +85,12 @@ class MassDtw(object):
         temp = len(self._list_compare)
 
         # For each series
-        for compare_label, compare_serie in self._list_compare[:1]:
+        for compare_label, compare_serie in self._list_compare[:10]:
             print('{}'.format(temp))
             temp -= 1
 
             # Reset Values
-            self._min_dtw = float('inf')
-            self._min_label = float('inf')
+            self._min_dtw = self._min_label = float('inf')
 
             # Iterate all labels
             for base_label, base_serie in self._list_base:
