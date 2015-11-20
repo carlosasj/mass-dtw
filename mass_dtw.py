@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
-from collections import defaultdict
 from dtw import Dtw
+from pprint import pprint
 
 
 def gen_dict_label(file_label):
@@ -15,26 +15,15 @@ def gen_dict_label(file_label):
     return dict_label
 
 
-def gen_dict_base(file_base):
-    dict_base = defaultdict(list)
-    for line in file_base.split('\n'):
-        try:
-            index, serie = line.split(' ', 1)
-            dict_base[index].append(serie.split(' '))
-        except:
-            pass
-    return dict(dict_base)
-
-
-def gen_list_compare(file_compare):
-    list_compare = []
-    for line in file_compare.split('\n'):
+def gen_list_serie(file_serie):
+    list_serie = []
+    for line in file_serie.split('\n'):
         try:
             label, serie = line.split(' ', 1)
-            list_compare.append([label, serie.split(' ')])
+            list_serie.append([label, serie.split(' ')])
         except:
             pass
-    return list_compare
+    return list_serie
 
 
 class MassDtw(object):
@@ -49,11 +38,11 @@ class MassDtw(object):
 
         # Dictionaies and lists, generated
         self._dict_label = gen_dict_label(file_label)
-        self._dict_base = gen_dict_base(file_base)
-        self._list_compare = gen_list_compare(file_compare)
+        self._list_base = gen_list_serie(file_base)
+        self._list_compare = gen_list_serie(file_compare)
 
         # Minimum dtw value until now. It's two temporary variables for
-        # internal use only. Please, avoid change this outsite `.run()`
+        # internal use only. Please, avoid change this outside `.run()`
         self._min_dtw = float('inf')
         self._min_label = float('inf')
 
@@ -70,7 +59,8 @@ class MassDtw(object):
     @property
     def _hit_ratio(self):
         try:
-            hit_ratio = self._count_hit / (self._count_hit + self._count_miss)
+            hit_ratio = \
+                (100 * self._count_hit) / (self._count_hit + self._count_miss)
         except ZeroDivisionError:
             hit_ratio = -1
         return hit_ratio
@@ -86,18 +76,14 @@ class MassDtw(object):
 
     def check_min(self, actual_label, actual_dtw):
         if actual_dtw < self._min_dtw:
-            print('NEW MIN: {}\told: {}'.format(actual_label, self._min_label))
+            # print('NEW MIN: {}\told: {}'.format(actual_label, self._min_label))
             self._min_dtw = actual_dtw
             self._min_label = actual_label
             return True
-        print('test min: {}\tnow: {}'.format(actual_label, self._min_label))
+        # print('test min: {}\tnow: {}'.format(actual_label, self._min_label))
         return False
 
     def run(self):
-        # This 'for chain' belhow looks like complexity O(n^3), but actualy it
-        # is O(n^2). Two of the 'for' is to access the same data structure (a
-        # dictionary), so it dosen't count.
-
         init_time = time.clock()
 
         temp = len(self._list_compare)
@@ -112,12 +98,10 @@ class MassDtw(object):
             self._min_label = float('inf')
 
             # Iterate all labels
-            for base_label, base_series_list in self._dict_base.items():
-
-                # Iterate all series on that label
-                for base_serie in base_series_list:
-                    actual_dtw = Dtw(base_serie, compare_serie).run()
-                    self.check_min(base_label, actual_dtw)
+            for base_label, base_serie in self._list_base[:1]:
+                actual_dtw = Dtw(base_serie, compare_serie)
+                result = actual_dtw.run()
+                self.check_min(base_label, result)
 
             self.check_hit_miss(compare_label, self._min_label)
 

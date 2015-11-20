@@ -22,11 +22,10 @@ classes of series.")
 
         sys.exit()
 
-    flags = {}
-    flags['compare'] = "teste.txt"
-    flags['base'] = "treino.txt"
-    flags['label'] = "rotulos.txt"
-    flags['sc_band'] = "100"
+    flags = {'compare': "teste.txt",
+             'base': "treino.txt",
+             'label': "rotulos.txt",
+             'sc_band': "100"}
 
     for flag in cmd[1:]:    # Interpret all flags
         try:
@@ -47,8 +46,9 @@ classes of series.")
     return flags
 
 # ----- Script starts here:
-
-# Interpret command line.
+import os
+# print("\a")
+os.system('sudo echo ""')
 flags = interpret_run(sys.argv)
 
 # Open Files
@@ -59,7 +59,6 @@ try:
 except IOError as e:
     print("Can't open one of the files.")
     raise e
-    sys.exit()
 
 mass_dtw = MassDtw(file_base,
                    file_compare,
@@ -67,5 +66,6 @@ mass_dtw = MassDtw(file_base,
                    sc_band=flags['sc_band'])
 
 ratio = mass_dtw.run()
-print(ratio)
+print('{}%'.format(ratio))
 print(mass_dtw._time_last_run)
+os.system('sudo beep')

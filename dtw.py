@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
+from pprint import pprint
+from math import sqrt, ceil
 
 
 class Dtw(object):
-    matrix_distance = {}
 
     def __init__(self, base_serie, compare_serie):
+        self._matrix_distance = {}
+        self._matrix_dtw = {(-1, -1): 0.0}
         self._base_serie = base_serie
         self._compare_serie = compare_serie
-        self._matrix_dtw = {(-1, -1): 0.0}
 
     def distance(self, p, q):
-        # dist = self.matrix_distance.get(
-        #     (p, q),
-        #     self.matrix_distance.get((q, p))
-        # )
-        dist = self.matrix_distance.get((p, q))
+        dist = self._matrix_distance.get((p, q))
         if not dist:
             dist = abs(
-                float(self._base_serie[p]) - float(self._compare_serie[q]))
-            self.matrix_distance[(p, q)] = dist
+                float(self._base_serie[p]) -
+                float(self._compare_serie[q]))
+            self._matrix_distance[(p, q)] = dist
         return dist
 
     def dtw(self, base, compare):
@@ -26,21 +25,21 @@ class Dtw(object):
         if recovery is not None:
             return recovery
 
-        if base < 0 or compare < 0:
+        if base == -1 or compare == -1:
             self._matrix_dtw[(base, compare)] = float('inf')
             return float('inf')
 
         dtw_south = self.dtw(base - 1, compare)
-        dtw_southwest = self.dtw(base - 1, compare - 1)
         dtw_west = self.dtw(base, compare - 1)
-        dtw_min = min(dtw_south, dtw_southwest, dtw_west)
+        dtw_southwest = self.dtw(base - 1, compare - 1)
+        dtw_min = min(dtw_south, dtw_west, dtw_southwest)
 
-        self._matrix_dtw[(base, compare)] = self.distance(base, compare) + \
-            dtw_min
+        result = self.distance(base, compare) + dtw_min
+        self._matrix_dtw[(base, compare)] = result
 
-        return self._matrix_dtw[(base, compare)]
+        return result
 
     def run(self):
         return self.dtw(
-            len(self._base_serie) - 1,
-            len(self._compare_serie) - 1)
+            len(self._base_serie) - 1, len(self._compare_serie) - 1)
+
