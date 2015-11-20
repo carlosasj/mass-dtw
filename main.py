@@ -47,7 +47,6 @@ classes of series.")
 
 # ----- Script starts here:
 import os
-# print("\a")
 os.system('sudo echo ""')
 flags = interpret_run(sys.argv)
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
 from dtw import Dtw
-from pprint import pprint
 
 
 def gen_dict_label(file_label):
@@ -36,7 +35,7 @@ class MassDtw(object):
         # Flag Sakoe‐Chiba band
         self._sc_band = int(sc_band)
 
-        # Dictionaies and lists, generated
+        # Dictionaries and lists, generated
         self._dict_label = gen_dict_label(file_label)
         self._list_base = gen_list_serie(file_base)
         self._list_compare = gen_list_serie(file_compare)
@@ -76,11 +75,9 @@ class MassDtw(object):
 
     def check_min(self, actual_label, actual_dtw):
         if actual_dtw < self._min_dtw:
-            # print('NEW MIN: {}\told: {}'.format(actual_label, self._min_label))
             self._min_dtw = actual_dtw
             self._min_label = actual_label
             return True
-        # print('test min: {}\tnow: {}'.format(actual_label, self._min_label))
         return False
 
     def run(self):
@@ -98,7 +95,7 @@ class MassDtw(object):
             self._min_label = float('inf')
 
             # Iterate all labels
-            for base_label, base_serie in self._list_base[:1]:
+            for base_label, base_serie in self._list_base:
                 actual_dtw = Dtw(base_serie, compare_serie)
                 result = actual_dtw.run()
                 self.check_min(base_label, result)

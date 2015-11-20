@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from pprint import pprint
-from math import sqrt, ceil
 
 
 class Dtw(object):
@@ -42,4 +40,3 @@ class Dtw(object):
     def run(self):
         return self.dtw(
             len(self._base_serie) - 1, len(self._compare_serie) - 1)
-
